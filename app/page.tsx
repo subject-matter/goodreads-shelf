@@ -23,16 +23,14 @@ export default async function Home() {
 
         <ShelfForm />
 
-        <div className="flex items-center justify-between mt-6">
-          <p className="text-[12px] text-[#8c877d]">
-            Make sure your Goodreads shelves are set to public.
-          </p>
-          <p className="text-[12px] text-[#8c877d] whitespace-nowrap ml-4">
-            {count} bookshelves built
-          </p>
-        </div>
+        <p className="text-[18px] font-medium text-black mt-6">
+          {count} bookshelves built
+        </p>
+        <p className="text-[12px] text-[#8c877d] mt-2">
+          Make sure your Goodreads shelves are set to public.
+        </p>
       </div>
-      <div className="fixed bottom-3 right-3 text-[11px] text-[#8c877d]">
+      <div className="fixed bottom-3 left-3 sm:left-auto sm:right-3 text-[11px] text-[#8c877d]">
         Built by{" "}
         <a
           href="https://x.com/rishisamuel"

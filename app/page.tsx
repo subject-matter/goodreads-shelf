@@ -30,16 +30,6 @@ export default async function Home() {
           Make sure your Goodreads shelves are set to public.
         </p>
       </div>
-      <div className="fixed bottom-3 left-3 sm:left-auto sm:right-3 text-[11px] text-[#8c877d]">
-        Built by{" "}
-        <a
-          href="https://x.com/rishisamuel"
-          target="_blank"
-          className="transition-colors duration-300 hover:text-black"
-        >
-          rishisamuel
-        </a>
-      </div>
     </main>
   );
 }

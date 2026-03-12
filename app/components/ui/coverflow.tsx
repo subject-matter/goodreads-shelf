@@ -194,7 +194,6 @@ export function CoverFlow({
     >
       <div
         className="relative w-full h-full flex items-center justify-center pointer-events-none"
-        style={{ transformStyle: 'preserve-3d' }}
       >
         {items.map((item, index) => (
           <CoverFlowItemCard
@@ -311,9 +310,10 @@ function CoverFlowItemCard({
   const rotateY = useTransform(t, (v) => v.rotateY)
   const x = useTransform(t, (v) => v.x)
   const z = useTransform(t, (v) => v.z)
-  const brightness = useTransform(position, (pos) =>
-    Math.abs(pos) < 0.5 ? 1 : 0.5,
+  const opacity = useTransform(position, (pos) =>
+    Math.abs(pos) < 0.5 ? 1 : 0.6,
   )
+  const visible = useTransform(position, (pos) => Math.abs(pos) <= 5)
 
   const getCursorClass = () => {
     if (isDragging) return 'cursor-grabbing'
@@ -323,7 +323,7 @@ function CoverFlowItemCard({
 
   return (
     <motion.div
-      className={`absolute top-1/2 left-1/2 will-change-transform ${getCursorClass()}`}
+      className={`absolute top-1/2 left-1/2 ${getCursorClass()}`}
       style={{
         width,
         height,
@@ -333,8 +333,9 @@ function CoverFlowItemCard({
         z,
         rotateY,
         zIndex,
-        transformStyle: 'preserve-3d',
-        filter: useTransform(brightness, (b) => `brightness(${b})`),
+        opacity,
+        display: useTransform(visible, (v) => (v ? 'block' : 'none')),
+        backfaceVisibility: 'hidden',
         pointerEvents: 'auto',
       }}
       onClick={onClick}
@@ -347,6 +348,7 @@ function CoverFlowItemCard({
             alt={item.title}
             className="object-cover w-full h-full select-none pointer-events-none"
             draggable={false}
+            loading="lazy"
           />
         </div>
       </div>
@@ -368,7 +370,8 @@ function CoverFlowItemCard({
             <img
               src={item.image}
               alt=""
-              className="object-cover w-full h-full blur-[1px]"
+              className="object-cover w-full h-full"
+              loading="lazy"
             />
             <div className="absolute inset-0 bg-gradient-to-b from-white/90 to-transparent" />
           </div>

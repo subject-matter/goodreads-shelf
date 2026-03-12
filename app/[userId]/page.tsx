@@ -63,7 +63,7 @@ export default async function UserShelf({
   }
 
   // Fire-and-forget — don't let Redis failure break the page
-  incrementShelvesBuilt().catch(() => {});
+  incrementShelvesBuilt(userId).catch(() => {});
 
   return (
     <main className="min-h-screen bg-white flex flex-col">

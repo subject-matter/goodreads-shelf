@@ -4,6 +4,7 @@ export interface Book {
   imageUrl: string;
   rating: number;
   dateRead: string;
+  year: number | null;
   link: string;
 }
 
@@ -48,9 +49,20 @@ export async function fetchGoodreadsBooks(
       imageUrl,
       rating,
       dateRead: dateRead ? formatDate(dateRead) : "",
+      year: dateRead ? parseYear(dateRead) : null,
       link,
     };
   });
+}
+
+function parseYear(dateStr: string): number | null {
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return null;
+    return date.getFullYear();
+  } catch {
+    return null;
+  }
 }
 
 function formatDate(dateStr: string): string {

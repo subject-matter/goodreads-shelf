@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getShelvesBuilt } from "./lib/redis";
 import ShelfForm from "./components/shelf-form";
 

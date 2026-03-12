@@ -20,8 +20,8 @@ const monumentGrotesk = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Rishi Samuel Patel",
-  description: "Personal site of Rishi Samuel Patel",
+  title: "Reading List",
+  description: "Books I've been reading, powered by Goodreads",
 };
 
 export default function RootLayout({

@@ -1,0 +1,67 @@
+export interface Book {
+  title: string;
+  author: string;
+  imageUrl: string;
+  rating: number;
+  dateRead: string;
+  link: string;
+}
+
+function extractTag(xml: string, tag: string): string {
+  const cdataMatch = xml.match(
+    new RegExp(`<${tag}><!\\[CDATA\\[([\\s\\S]*?)\\]\\]></${tag}>`)
+  );
+  if (cdataMatch) return cdataMatch[1].trim();
+
+  const match = xml.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`));
+  return match ? match[1].trim() : "";
+}
+
+export async function fetchGoodreadsBooks(
+  userId: string,
+  shelf: string = "read"
+): Promise<Book[]> {
+  const url = `https://www.goodreads.com/review/list_rss/${userId}?shelf=${shelf}`;
+
+  const res = await fetch(url, { next: { revalidate: 3600 } });
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch Goodreads RSS: ${res.status}`);
+  }
+
+  const xml = await res.text();
+  const items = xml.split("<item>").slice(1);
+
+  return items.map((item) => {
+    const title = extractTag(item, "title");
+    const authorName = extractTag(item, "author_name");
+    const imageUrl = extractTag(item, "book_large_image_url") ||
+      extractTag(item, "book_medium_image_url") ||
+      extractTag(item, "book_image_url");
+    const rating = parseInt(extractTag(item, "user_rating")) || 0;
+    const dateRead = extractTag(item, "user_read_at");
+    const link = extractTag(item, "link");
+
+    return {
+      title,
+      author: authorName,
+      imageUrl,
+      rating,
+      dateRead: dateRead ? formatDate(dateRead) : "",
+      link,
+    };
+  });
+}
+
+function formatDate(dateStr: string): string {
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return "";
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      year: "numeric",
+    });
+  } catch {
+    return "";
+  }
+}

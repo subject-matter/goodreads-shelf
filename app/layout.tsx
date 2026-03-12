@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/react";
 import PageTransition from "./components/page-transition";
 
 const monumentGrotesk = localFont({
@@ -33,6 +34,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${monumentGrotesk.className} antialiased`}>
         <PageTransition>{children}</PageTransition>
+        <Analytics />
       </body>
     </html>
   );

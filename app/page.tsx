@@ -28,7 +28,7 @@ export default async function Home() {
             Make sure your Goodreads shelves are set to public.
           </p>
           <p className="text-[12px] text-[#8c877d] whitespace-nowrap ml-4">
-            {count} {count === 1 ? "bookshelf" : "bookshelves"} built
+            {count} bookshelves built
           </p>
         </div>
       </div>

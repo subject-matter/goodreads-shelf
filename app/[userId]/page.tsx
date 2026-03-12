@@ -74,9 +74,6 @@ export default async function UserShelf({
         <Shelf books={books} />
       </div>
 
-      <div className="px-6 pb-8 flex justify-center">
-        <p className="text-[12px] text-[#8c877d]">Powered by Goodreads RSS</p>
-      </div>
     </main>
   );
 }

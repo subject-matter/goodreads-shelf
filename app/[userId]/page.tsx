@@ -1,5 +1,21 @@
+import type { Metadata } from "next";
 import { fetchGoodreadsBooks } from "../lib/goodreads";
+import { incrementShelvesBuilt } from "../lib/redis";
 import Shelf from "./shelf";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ userId: string }>;
+}): Promise<Metadata> {
+  const { userId } = await params;
+  try {
+    const { userName } = await fetchGoodreadsBooks(userId);
+    return { title: userName ? `${userName}'s bookshelf` : "My Bookshelf" };
+  } catch {
+    return { title: "My Bookshelf" };
+  }
+}
 
 export default async function UserShelf({
   params,
@@ -9,20 +25,15 @@ export default async function UserShelf({
   const { userId } = await params;
 
   let books;
+  let userName = "";
   try {
-    books = await fetchGoodreadsBooks(userId);
+    const result = await fetchGoodreadsBooks(userId);
+    books = result.books;
+    userName = result.userName;
   } catch {
     return (
       <main className="min-h-screen bg-white flex items-center justify-center px-6">
         <div className="max-w-[500px]">
-          <div className="mb-6">
-            <a
-              href="/"
-              className="inline-flex items-center h-[26px] px-3 bg-[#f2f1ee] rounded-full text-[13px] text-[#8c877d] transition-colors duration-300 hover:text-black"
-            >
-              &lsaquo; Back
-            </a>
-          </div>
           <h1 className="text-[22px] font-medium text-black mb-4">
             Couldn&apos;t load books
           </h1>
@@ -39,14 +50,6 @@ export default async function UserShelf({
     return (
       <main className="min-h-screen bg-white flex items-center justify-center px-6">
         <div className="max-w-[500px]">
-          <div className="mb-6">
-            <a
-              href="/"
-              className="inline-flex items-center h-[26px] px-3 bg-[#f2f1ee] rounded-full text-[13px] text-[#8c877d] transition-colors duration-300 hover:text-black"
-            >
-              &lsaquo; Back
-            </a>
-          </div>
           <h1 className="text-[22px] font-medium text-black mb-4">
             No books found
           </h1>
@@ -59,21 +62,14 @@ export default async function UserShelf({
     );
   }
 
+  // Fire-and-forget — don't let Redis failure break the page
+  incrementShelvesBuilt().catch(() => {});
+
   return (
     <main className="min-h-screen bg-white flex flex-col">
-      <div className="fixed top-0 left-0 right-0 z-10 bg-white h-[50px] flex items-center px-3">
-        <a
-          href="/"
-          className="inline-flex items-center h-[26px] px-3 bg-[#f2f1ee] rounded-full text-[13px] text-[#8c877d] transition-colors duration-300 hover:text-black"
-        >
-          &lsaquo; Back
-        </a>
+      <div>
+        <Shelf books={books} userName={userName} />
       </div>
-
-      <div className="pt-[50px]">
-        <Shelf books={books} />
-      </div>
-
     </main>
   );
 }

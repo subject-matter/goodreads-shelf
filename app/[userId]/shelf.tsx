@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { CoverFlow, type CoverFlowItem } from "../components/ui/coverflow";
 import type { Book } from "../lib/goodreads";
 
@@ -9,7 +10,7 @@ interface YearGroup {
   items: CoverFlowItem[];
 }
 
-export default function Shelf({ books }: { books: Book[] }) {
+export default function Shelf({ books, userName }: { books: Book[]; userName: string }) {
   // Group books by year, most recent first
   const grouped = new Map<string, Book[]>();
   for (const book of books) {
@@ -38,33 +39,65 @@ export default function Shelf({ books }: { books: Book[] }) {
       })),
     }));
 
+  const [selectedYear, setSelectedYear] = useState<string>(
+    yearGroups[0]?.year ?? ""
+  );
+
+  const activeGroup = yearGroups.find((g) => g.year === selectedYear);
+
   return (
-    <div className="flex flex-col">
-      {yearGroups.map((group) => (
-        <div key={group.year} className="flex flex-col items-center justify-center py-8">
-          <h2 className="text-[22px] font-medium text-black mb-2">{group.year}</h2>
+    <div className="flex flex-col items-center">
+      {userName && (
+        <h1 className="text-[22px] font-medium text-black pt-8 pb-2">
+          {userName}&apos;s bookshelf
+        </h1>
+      )}
+      <div className="flex flex-wrap justify-center gap-2 px-4 pt-4 pb-2">
+        {yearGroups.map((group) => (
+          <button
+            key={group.year}
+            onClick={() => setSelectedYear(group.year)}
+            className={`inline-flex items-center h-[26px] px-3 rounded-full text-[13px] transition-colors duration-300 ${
+              selectedYear === group.year
+                ? "bg-black text-white"
+                : "bg-[#f2f1ee] text-[#8c877d] hover:text-black"
+            }`}
+          >
+            {group.year}
+          </button>
+        ))}
+      </div>
+
+      {activeGroup && (
+        <div className="flex flex-col items-center justify-center py-8 w-full">
           <p className="text-[13px] text-[#8c877d] mb-6">
-            {group.books.length} book{group.books.length !== 1 ? "s" : ""} read
+            {activeGroup.books.length} book
+            {activeGroup.books.length !== 1 ? "s" : ""} read
           </p>
           <div className="w-full h-[500px]">
             <CoverFlow
-              items={group.items}
+              key={activeGroup.year}
+              items={activeGroup.items}
               itemWidth={220}
               itemHeight={330}
-              initialIndex={Math.min(4, Math.max(0, group.items.length - 1))}
+              initialIndex={Math.min(
+                4,
+                Math.max(0, activeGroup.items.length - 1)
+              )}
               enableScroll={true}
               scrollThreshold={60}
               centerGap={180}
               stackSpacing={60}
               enableReflection={true}
               onItemClick={(_item, index) => {
-                const book = group.books[index];
+                const book = activeGroup.books[index];
                 if (book?.link) window.open(book.link, "_blank");
               }}
             />
           </div>
         </div>
-      ))}
+      )}
+
     </div>
   );
 }

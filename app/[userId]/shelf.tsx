@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CoverFlow, type CoverFlowItem } from "../components/ui/coverflow";
+import { MobileCarousel } from "../components/ui/mobile-carousel";
 import type { Book } from "../lib/goodreads";
 
 interface YearGroup {
@@ -42,6 +43,14 @@ export default function Shelf({ books, userName }: { books: Book[]; userName: st
   const [selectedYear, setSelectedYear] = useState<string>(
     yearGroups[0]?.year ?? ""
   );
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   const activeGroup = yearGroups.find((g) => g.year === selectedYear);
 
@@ -74,27 +83,42 @@ export default function Shelf({ books, userName }: { books: Book[]; userName: st
             {activeGroup.books.length} book
             {activeGroup.books.length !== 1 ? "s" : ""} read
           </p>
-          <div className="w-full h-[500px]">
-            <CoverFlow
+          {isMobile ? (
+            <MobileCarousel
               key={activeGroup.year}
               items={activeGroup.items}
-              itemWidth={220}
-              itemHeight={330}
               initialIndex={Math.min(
                 4,
                 Math.max(0, activeGroup.items.length - 1)
               )}
-              enableScroll={true}
-              scrollThreshold={60}
-              centerGap={180}
-              stackSpacing={60}
-              enableReflection={true}
               onItemClick={(_item, index) => {
                 const book = activeGroup.books[index];
                 if (book?.link) window.open(book.link, "_blank");
               }}
             />
-          </div>
+          ) : (
+            <div className="w-full h-[500px]">
+              <CoverFlow
+                key={activeGroup.year}
+                items={activeGroup.items}
+                itemWidth={220}
+                itemHeight={330}
+                initialIndex={Math.min(
+                  4,
+                  Math.max(0, activeGroup.items.length - 1)
+                )}
+                enableScroll={true}
+                scrollThreshold={60}
+                centerGap={180}
+                stackSpacing={60}
+                enableReflection={true}
+                onItemClick={(_item, index) => {
+                  const book = activeGroup.books[index];
+                  if (book?.link) window.open(book.link, "_blank");
+                }}
+              />
+            </div>
+          )}
         </div>
       )}
 
